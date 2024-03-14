@@ -1,0 +1,21 @@
+version: '3.3'
+volumes:
+  data:
+
+
+services: 
+  app:
+    build:
+      dockerfile: ./Dockerfile
+    container_name: frontend
+    restart: always
+    ports:
+      - ${VITE_PORT}:${VITE_PORT}
+    environment:
+      - VITE_FRONTEND_URL=${VITE_FRONTEND_URL}
+      - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+      - VITE_URL_SERVELESS_BOT=${VITE_URL_SERVELESS_BOT}
+    volumes:
+      - ./src:/usr/src/app/src
+    # command: bash -c "npm run db:create && npm run migrate:up && npm run seed:all"
+    
