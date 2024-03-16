@@ -19,6 +19,7 @@ import { api } from '../../services/api';
 import { Container, Content, ContentUseAI, ContainerCard, Title, Subtitle, ContentConfiguracoes, ContentVariaveis, TableVariables } from './styles';
 import { Button } from '../../components/Button';
 import Switch from '../../components/Switch';
+import Swal from 'sweetalert2';
 
 const NODE_TYPES = {
     square: Square,
@@ -75,8 +76,6 @@ export function FluxoBot() {
                 },
             },
         ])
-
-        console.log(nodes)
     }
 
     function openConfig(event: any, node: Node) {
@@ -215,6 +214,24 @@ export function FluxoBot() {
         }
     };
 
+    const publicFile = () => {
+        Swal.fire({
+            title: "Tem Certeza que deseja publicar esta Edição?",
+            showDenyButton: false,
+            showCancelButton: true,
+            confirmButtonText: "Salvar",
+            denyButtonText: `Não Salvar`
+        }).then(async (result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                await api.post(`/files/public-file/${token}`, { filename: `${fileEdition.filename}` })
+                Swal.fire("Saved!", "", "success");
+            } else if (result.isDenied) {
+                Swal.fire("Changes are not saved", "", "info");
+            }
+        });
+
+    }
     useEffect(() => {
         setCarregando(loading)
         if (data?.fileEdition && data?.fileEdition?.data) {
@@ -229,7 +246,6 @@ export function FluxoBot() {
                 if (fileEdition.data.configurations.use_openai) {
                     setUseAiConfig(fileEdition.data.use_openai_config)
                     setVisualizando('useAi')
-                    console.log(fileEdition.data)
                 }
 
 
@@ -261,7 +277,7 @@ export function FluxoBot() {
                             {!useAI && (<li onClick={() => { setVisualizando('fluxo'); addSquareNode(); }}><FiPlus /></li>)}
                             <li onClick={() => setVisualizando('configuracoes')}><FiSettings /></li>
                             <li onClick={() => setVisualizando('variaveis')}><FiBookOpen /></li>
-                            <li ><FiUploadCloud /></li>
+                            <li onClick={() => publicFile()}><FiUploadCloud /></li>
                         </ul>
                     </MenuFluxoLateral>
                     {visualizando == 'fluxo' ? (
