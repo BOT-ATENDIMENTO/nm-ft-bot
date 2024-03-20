@@ -4,13 +4,12 @@ import { Container, Head, Profile, Menu, Links, Logout } from './styles';
 import { useAuth } from '../../hooks/auth';
 
 export function Header() {
-
     const { user, signOut }: any = useAuth();
     return (
         <Container>
             <Head>
                 <Profile>
-                    <img src="https://github.com/lRafaelOliveira.png" alt="User Image" />
+                    <img src={user.photo_profile} alt="User Image" />
                     <div>
                         <span>Bem-vindo</span>
                         <strong><Link to={'/profile'}>{user.name}</Link></strong>

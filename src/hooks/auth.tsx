@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { api } from "../services/api";
 import Swal from 'sweetalert2';
 const AuthContext = createContext({});
 
 export function AuthProvider({ children }: any) {
-    const [data, setData] = useState({ user: null, token: null });
+    const [data, setData] = useState<{ user: string | null, token: string | null }>({ user: null, token: null });
 
     async function signIn({ email, password }: any) {
         try {
@@ -56,10 +56,9 @@ export function AuthProvider({ children }: any) {
         })
     }
 
-    function updateProfile({ user }): any {
+    function updateProfile({ user }: any): any {
         try {
-
-
+            console.log(user)
         } catch (error: any) {
             if (error.response) {
                 Swal.fire({
