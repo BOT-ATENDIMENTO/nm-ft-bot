@@ -81,6 +81,24 @@ export function AuthProvider({ children }: any) {
 
         }
     }
+
+    async function validateToken(oldToken: string | null) {
+        try {
+            if (!oldToken) {
+                throw new Error('Token não encontrado');
+            }
+            // Faça a chamada para validar o token no servidor
+            const response = await api.post('/validateToken', { token: oldToken });
+            // Se o token ainda for válido, atualize os dados do usuário
+            const { user, token } = response.data;
+            setData({ user, token });
+        } catch (error: any) {
+            // console.log(error)
+            signOut()
+        }
+    }
+
+
     useEffect(() => {
         const token = localStorage.getItem('token');
         const user = localStorage.getItem('user');
@@ -92,6 +110,12 @@ export function AuthProvider({ children }: any) {
             })
         }
     }, [])
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        validateToken(token);
+    }, []);
+
 
     return (
         <AuthContext.Provider value={{ user: data.user, token: data.token, signIn, signOut }}>
