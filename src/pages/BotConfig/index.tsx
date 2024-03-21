@@ -5,7 +5,7 @@ import { api } from '../../services/api';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/auth';
 import { useParams } from 'react-router-dom';
-import QRCode from 'react-qr-code';
+import { QRCodeSVG } from 'qrcode.react';
 import Swal from 'sweetalert2';
 import { apiWhatsApp } from '../../services/apiWhatsApp';
 import { AxiosError } from 'axios';
@@ -43,6 +43,7 @@ export function BotConfig() {
     const [buttonText, setButtonText] = useState("Salvar");
     const [buttonTextQrCode, setButtonTextQrCode] = useState("Criar Nova Sessão");
     const [buttonTextUpload, setButtonTextUpload] = useState("Upload de Arquivo");
+    const [textUploadFile, setTextUploadFile] = useState("Solte seus arquivos aqui");
     const [urlWebHook, setUrlWebhook] = useState('')
     const [files, setFiles] = useState<File[]>([]);
     const [newConfig, setNewConfig] = useState<any>({});
@@ -89,14 +90,14 @@ export function BotConfig() {
 
     const handleGenerateQR = async () => {
         // Aqui você pode implementar a lógica para gerar o QR code
-        console.log("Gerar QR code");
         setButtonTextQrCode('Criando...')
-        await apiWhatsApp.get(`/session/start/${token}`).then((data: any) => {
-            buscandoQrCode()
-        }).catch((err: AxiosError) => {
+        await apiWhatsApp.get(`/session/start/${token}`).then(async (data: any) => {
+            if (data.data.success) {
+                await buscandoQrCode()
+            }
+        }).catch(async (err: AxiosError) => {
             if (err.response?.status == 422) {
-                console.log('Aguardando Geracao de qr Code')
-                buscandoQrCode()
+                await buscandoQrCode()
             } else {
                 console.log('Erro ao Iniciar Sessao')
                 Swal.fire({
@@ -112,43 +113,53 @@ export function BotConfig() {
     };
 
     const updateStatusWhatsApp = async () => {
-        await apiWhatsApp.get(`/session/status/${token}`).then((data: any) => {
-            if (data.data.message) {
-                if (data.data.message == 'session_not_connected') {
-                    buscandoQrCode()
-                }
-                setWhatsAppConnected(data.data.message)
-            } else {
-                console.log(data)
-                setWhatsAppConnected('')
-            }
-        }).catch((err: AxiosError) => {
-            console.log("Erro Ao Obter Status")
-            setWhatsAppConnected('erro_ao_obter')
-        })
-    }
-    const buscandoQrCode = async () => {
-        updateStatusWhatsApp()
-        setTimeout(async () => {
-            await apiWhatsApp.get(`/session/qr/${token}`).then((data: any) => {
-                if (data.data.qr) {
-                    setQrCode(data.data.qr)
-                    setButtonTextQrCode('Atualizar Qr')
-                    setTimeout(async () => {
+        setQrCode("")
+        const intervalId = setInterval(async () => {
+            await apiWhatsApp.get(`/session/status/${token}`).then(async (data: any) => {
+                if (data.data.message) {
+                    setWhatsAppConnected(data.data.message)
+                    if (data.data.message == 'session_not_connected') {
+                        setButtonTextQrCode('Gerando Qr...')
                         buscandoQrCode()
-                    }, 30 * 1000)
+                    } else if (whatsAppConnected == "session_connected") {
+                        setButtonTextQrCode("Conetado")
+                        setQrCode("")
+                        clearInterval(intervalId); // Para o intervalo após encontrar o QR code
+                    }
                 } else {
-                    buscandoQrCode()
+                    console.log(data)
+                    setWhatsAppConnected('erro_ao_obter')
                 }
             }).catch((err: AxiosError) => {
-                setTimeout(async () => {
-                    buscandoQrCode()
-                }, 3 * 1000)
-                console.log("Erro Ao Obter Qr Code")
+                console.log("Erro Ao Obter Status", err)
+                setWhatsAppConnected('erro_ao_obter')
             })
-
-        }, 3 * 1000)
+        }, (3 * 1000)); // Verifica a cada 30 segundos
     }
+
+
+    const buscandoQrCode = (): Promise<void> => {
+        return new Promise<void>(async (resolve, reject) => {
+            try {
+                const response = await apiWhatsApp.get(`/session/qr/${token}`);
+                if (response.data.qr) {
+                    if (whatsAppConnected != "session_connected") {
+                        setQrCode(response.data.qr);
+                        setButtonTextQrCode('Atualizar Qr');
+                        resolve(); // Resolve a Promise após encontrar o QR code
+                    }
+                } else {
+                    setWhatsAppConnected(response.data.message)
+                    if (response.data.message == "session_not_found") {
+                        setButtonTextQrCode('Nova Sessão')
+                    }
+                }
+            } catch (err) {
+                console.log("Erro Ao Obter Qr Code", err);
+                reject(err); // Rejeita a Promise em caso de erro
+            }
+        });
+    };
 
     const desconectarWhatsApp = async () => {
         await apiWhatsApp.get(`/session/terminate/${token}`).then((data: any) => {
@@ -175,6 +186,7 @@ export function BotConfig() {
             try {
                 const config = JSON.parse(reader.result as string);
                 setNewConfig(config);
+                setTextUploadFile(file.name)
             } catch (error) {
             }
         };
@@ -202,17 +214,39 @@ export function BotConfig() {
             filename: `${token}-file-config-published.json`,
             data: newConfig
         })
-        console.log(result.config.data)
         Swal.fire({
             position: "top-end",
             icon: "success",
             title: "Atualizado com Sucesso!",
             showConfirmButton: false,
             timer: 1500
+        }).then(() => {
+            window.location.reload();
         });
         setButtonTextUpload("Upload de Arquivos");
         return
     };
+    const handleDownloadFile = async (e: any) => {
+        try {
+            const response = await api.post(`/files/get-file-config/${token}`);
+            const json = response.data.data
+            // Criar um Blob a partir do JSON
+            const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' });
+            // Criar um link para o Blob e simular o clique para iniciar o download
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'config.json';
+            a.click();
+
+            // // Limpar o objeto URL criado após o download
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Erro ao baixar o arquivo JSON:', error);
+            // Trate o erro conforme necessário
+        }
+    }
+
     useEffect(() => {
         async function getBot() {
             try {
@@ -244,6 +278,7 @@ export function BotConfig() {
         }
         getBot()
     }, [token])
+
     useEffect(() => {
         if (bot) {
             setName(bot.name || '');
@@ -255,8 +290,7 @@ export function BotConfig() {
                 updateStatusWhatsApp()
             }
         }
-    }, [bot, updateStatusWhatsApp]);
-
+    }, [bot]);
     useEffect(() => {
         const urlServelessBot = import.meta.env.VITE_URL_SERVELESS_BOT;
         const webHook = `${urlServelessBot}/${plataform}/new-message/${token}`
@@ -264,8 +298,9 @@ export function BotConfig() {
     }, [plataform])
 
     useEffect(() => {
-        console.log(qrCode)
+        // console.log(qrCode)
     }, [qrCode])
+
     return (
         <Container>
             <Header />
@@ -293,53 +328,53 @@ export function BotConfig() {
                         </select>
                     </div>
                     <div className='col-4'>
-                        <label>Arquivo Configuração: </label>
-                        <div
-                            onDragOver={handleDragOver}
-                            onDrop={handleDrop}
-                            style={{ border: "5px dashed #ccc", padding: "50px", margin: "10px 10px 20px 10px", textAlign: 'center' }}
-                        >
-                            Solte seus arquivos aqui
-                        </div>
-                        <ul>
-                            {files.map((file) => (
-                                <li key={file.name}>{file.name}</li>
-                            ))}
-                        </ul>
-                        <div className='col-12'>
-                            <button onClick={(e: any) => { handleUpload(e) }}>{buttonTextUpload}</button>
-                        </div>
+                        <details>
+                            <summary><label>Arquivo Configuração: </label>
+                            </summary>
+                            <div
+                                onDragOver={handleDragOver}
+                                onDrop={handleDrop}
+                                style={{ border: "5px dashed #ccc", padding: "50px", margin: "10px 10px 20px 10px", textAlign: 'center' }}
+                            >
+                                {textUploadFile}
+                            </div>
+                            <div className='col-12' style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                                <button onClick={(e: any) => { handleUpload(e) }}>{buttonTextUpload}</button>
+                                <button onClick={(e: any) => { handleDownloadFile(e) }}>Download do Arquivo</button>
+                            </div>
+                        </details>
                     </div>
                     <div className='col-4'>
                         {plataform == 'simple' ? (
-
                             whatsAppConnected === 'session_not_found' ? (
                                 <div>
                                     <span>
                                         Usando essa função nós geramos um QR code, que você pode ler com seu celular, e uma API gratuita do WhatsApp Web JS. Nós a utilizamos para receber o webhook e assim manter uma comunicação entre seu WhatsApp e nosso Bot.
                                     </span>
-                                    <div className='area-qrcode'></div>
                                     <button type='button' onClick={handleGenerateQR}>{buttonTextQrCode}</button>
                                 </div>
-                            ) :
-                                whatsAppConnected === 'session_not_connected' ? (
-                                    <div>
-                                        <span>
-                                            Usando essa função nós geramos um QR code, que você pode ler com seu celular, e uma API gratuita do WhatsApp Web JS. Nós a utilizamos para receber o webhook e assim manter uma comunicação entre seu WhatsApp e nosso Bot.
-                                        </span>
-                                        <div className='area-qrcode'>
-                                            {qrCode !== '' && (
-                                                <QRCode value={qrCode} style={{ textAlign: 'center' }} />
-                                            )}
+                            ) : whatsAppConnected === 'session_not_connected' ? (
+                                <div>
+                                    <span>
+                                        Usando essa função nós geramos um QR code, que você pode ler com seu celular, e uma API gratuita do WhatsApp Web JS. Nós a utilizamos para receber o webhook e assim manter uma comunicação entre seu WhatsApp e nosso Bot.
+                                    </span>
+                                    <div className='area-qrcode'>
+                                        {qrCode !== '' && (
+                                            <QRCodeSVG value={qrCode} style={{ textAlign: 'center', width: '95%', height: '95%' }} width={100} height={100} />
+                                        )}
 
-                                        </div>
-                                        <button type='button' onClick={buscandoQrCode}>{buttonTextQrCode}</button>
                                     </div>
-                                ) : (
-                                    <div>
-                                        <button type='button' onClick={desconectarWhatsApp}>Desconectar WhatsApp</button>
-                                    </div>
-                                )
+                                    <button type='button' onClick={buscandoQrCode}>{buttonTextQrCode}</button>
+                                </div>
+                            ) : whatsAppConnected === 'session_connected' ? (
+                                <div>
+                                    <button type='button' onClick={desconectarWhatsApp}>Desconectar</button>
+                                </div>
+                            ) : (
+                                <div>
+                                    <button type='button'>Carregando...{whatsAppConnected}</button>
+                                </div>
+                            )
                         ) : plataform == 'chatpro' ? (
                             <div>
                                 <span>

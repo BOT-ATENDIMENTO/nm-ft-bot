@@ -42,22 +42,29 @@ export const Content = styled.div`
     }
 
     >div{
+        @media screen and (max-width: 768px) {
+            text-align: center;
+        }
         .col-4{
             display: flex;
             flex-direction: column;
             background-color: ${({ theme }) => theme.COLORS.BACKGROUND_1000};
             border: 2px solid ${({ theme }) => theme.COLORS.BACKGROUND_800};
             border-radius: 10px;
-            margin: 10px;
-            padding: 5px;
+            margin: 1rem;
+            padding: 1rem;
             justify-content: center;
             >input, >select{
-                border-radius: 10px;
-                padding: 10px;
+                border-radius: 1rem;
+                padding: 1rem;
                 width: 50%;
                 margin-left: 2rem;
                 background-color: #ccc;
-                font-size: 15px;
+                font-size: 1.5rem;
+                @media screen and (max-width: 768px) {
+                    width: 100%;
+                    margin:0;
+                }
             }
             span{
                 display: block;
@@ -81,7 +88,7 @@ export const Content = styled.div`
                     display: block;
                     margin:  auto;
                     border-radius: 15px;
-                    padding:15px;
+                    padding:1rem;
                     width: 300px;
                     background-color: ${({ theme }) => theme.COLORS.ORANGE};
                     font-size: 20px;
