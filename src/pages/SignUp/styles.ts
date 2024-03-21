@@ -6,6 +6,7 @@ export const Container = styled.div`
 
   display: flex;
   align-items: stretch;
+  justify-content: center;
 `
 
 export const Form = styled.form`
@@ -34,10 +35,18 @@ export const Form = styled.form`
     font-size: 16px;
     margin-top: 124px;
   }
+  @media screen and (max-width: 768px) {
+    width: 90vw;
+    padding:0;
+
+  }
 `
 
 export const Background = styled.div`
   flex: 1;
   background: url(${backgroundLogin}) no-repeat center center;
   background-size: cover;
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
 `

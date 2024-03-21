@@ -3,36 +3,41 @@ import backgroundLogin from '../../assets/backgroundLogin.png'
 
 export const Container = styled.div`
   height: 100vh;
-
   display: flex;
   align-items: stretch;
+  justify-content: center;
 `
 
 export const Form = styled.form`
-  padding: 0 136px;
   display: flex;
   justify-content: center;
   flex-direction: column;
   align-items: center;
-
+  padding:10rem;
   > h1 {
-    font-size: 48px;
+    font-size: 4.8rem;
     color: ${({ theme }) => theme.COLORS.ORANGE};
   }
   > h2 {
-    font-size: 24px;
-    margin: 48px 0;
+    font-size: 2.4rem;
+    margin:4.8rem 0;
   }
 
   > p {
-    font-size: 14px;
+    font-size: 1.4rem;
     color: ${({ theme }) => theme.COLORS.GRAY_100};
   }
 
   > a {
     color: ${({ theme }) => theme.COLORS.ORANGE};
-    font-size: 16px;
-    margin-top: 124px;
+    font-size: 1.6rem;
+    margin-top: 2.4rem;
+  }
+
+  @media screen and (max-width: 768px) {
+    width: 90vw;
+    padding:0;
+
   }
 `
 
@@ -40,4 +45,7 @@ export const Background = styled.div`
   flex: 1;
   background: url(${backgroundLogin}) no-repeat center center;
   background-size: cover;
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
 `
