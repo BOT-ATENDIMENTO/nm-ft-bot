@@ -12,10 +12,15 @@ export const Head = styled.header`
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-bottom-color: ${({ theme }) => theme.COLORS.BACKGROUND_700};
-
   display: flex;
   justify-content: space-between;
   padding: 0 80px;
+  @media screen and (max-width: 768px) {
+        width: 100vw;
+        padding:1rem;
+        margin:0;
+
+  }
 `
 export const Profile = styled.div`
   display: flex;
@@ -37,6 +42,10 @@ export const Profile = styled.div`
     flex-direction: column;
     margin-left: 16px;
     line-height: 24px;
+    @media screen and (max-width: 768px) {
+       display:none
+
+    }
   }
 
   span {

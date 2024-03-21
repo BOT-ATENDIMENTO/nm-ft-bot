@@ -4,10 +4,9 @@ import styled from "styled-components";
 export const Container = styled.div`
     width: 100%;
     height: 100vh;
-
     display: grid;
     grid-template-columns: auto;
-    grid-template-rows: 90px auto 30px;
+    grid-template-rows: 9rem auto 3rem;
     grid-template-areas: 
        "header"
        "content"
@@ -21,54 +20,43 @@ export const Content = styled.div`
     display: flex;
     justify-content: center;
     ::-webkit-scrollbar {
-        /* largura da barra de rolagem */
-        width: 5px;
+        width: 0.5rem;
     }
-    /* Estilos para o rastreador (a própria barra) */
     ::-webkit-scrollbar-thumb {
         background-color:  ${({ theme }) => theme.COLORS.ORANGE};
-        /* cor da barra de rolagem */
-        border-radius: 5px;
-        /* borda arredondada */
+        border-radius: 0.5rem;
     }
 
-    /* Estilos para a área de rolagem (área ao redor da barra) */
     ::-webkit-scrollbar-track {
         background-color: ${({ theme }) => theme.COLORS.BLACK_300};
-        /* cor de fundo da área de rolagem */
     }
 `;
 
 export const ContentUseAI = styled.div`
-    position: fixed;
+    position: absolute;
     display: flex;
     flex-direction: column;
     width: 70vw;
     margin: auto;
-    /* top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); */
     background-color:  ${({ theme }) => theme.COLORS.BACKGROUND_800};
-    border-radius: 10px;
-    padding: 10px;
-    overflow-y: auto; /* Adicionando overflow-y para permitir rolagem vertical */
-    max-height: calc(100vh - 120px);
+    border-radius: 1rem;
+    padding: 1rem;
+    overflow-y: scroll; 
     ::-webkit-scrollbar {
         width: 5px;
-        /* largura da barra de rolagem */
     }
-    /* Estilos para o rastreador (a própria barra) */
     ::-webkit-scrollbar-thumb {
         background-color:  ${({ theme }) => theme.COLORS.ORANGE};
-        /* cor da barra de rolagem */
         border-radius: 5px;
-        /* borda arredondada */
     }
 
     /* Estilos para a área de rolagem (área ao redor da barra) */
     ::-webkit-scrollbar-track {
         background-color:  ${({ theme }) => theme.COLORS.BACKGROUND_800};
         /* cor de fundo da área de rolagem */
+    }
+    @media screen and (max-width: 768px) {
+        width: 95vw;
     }
 `;
 
@@ -81,9 +69,11 @@ export const ContainerCard = styled.div`
         "box1 box2"
         "box3 box3";
     width: 90%;
-    border: 1px #ccc solid;
-    border-radius:10px;
+    border: 0.1rem #ccc solid;
+    border-radius:1rem;
     margin: 1.5rem;
+ 
+
     .box1 {
         grid-area: box1;
     }
@@ -137,14 +127,26 @@ export const ContainerCard = styled.div`
             }
         }
     }
+
+    @media screen and (max-width: 768px) {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+        "box1"
+        "box2"
+        "box3"
+        "box4";
+        .box1, .box2, .box3, .box4{
+            width: 100%;
+        }
+  }
 `;
 
 export const Title = styled.h1`
   font-size: 2rem;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
 `;
 
-export const Subtitle = styled.p`
+export const Subtitle = styled.span`
   font-size: 1.2rem;
 `;
 
@@ -155,10 +157,13 @@ export const ContentConfiguracoes = styled.div`
     flex-direction: column;
     width: 70vw;
     background-color:  ${({ theme }) => theme.COLORS.BACKGROUND_800};
-    border-radius: 10px;
-    padding: 10px;
+    border-radius: 1rem;
+    padding: 1rem;
     overflow-y: auto; /* Adicionando overflow-y para permitir rolagem vertical */
     max-height: calc(100vh - 120px);
+    @media screen and (max-width: 768px) {
+        width: 95vw;
+    }
 `;
 
 export const ContentVariaveis = styled.div`
@@ -168,19 +173,23 @@ export const ContentVariaveis = styled.div`
     width: 40vw;
     margin: auto;
     background-color:  ${({ theme }) => theme.COLORS.BACKGROUND_800};
-    border-radius: 10px;
-    padding: 10px;
+    border-radius: 1rem;
+    padding: 1rem;
     overflow-y: auto; /* Adicionando overflow-y para permitir rolagem vertical */
     max-height: calc(100vh - 120px);
-    z-index: 99;
+    /* z-index: 99; */
+    @media screen and (max-width: 768px) {
+        width: 95vw;
+        height: 90vh;
+    }
 `;
 
 export const TableVariables = styled.table`
     width: 100%;
     border-collapse: collapse;
     th,td {
-        border: 1px solid #ddd;
-        padding: 8px;
+        border: 0.1rem solid #ddd;
+        padding: 0.8rem;
     }
 
     th {
@@ -189,12 +198,12 @@ export const TableVariables = styled.table`
 
     input[type="text"] {
         width: 100%;
-        padding: 6px;
+        padding: 06rem;
         box-sizing: border-box;
     }
 
     button {
-        padding: 8px;
+        padding: 0.8rem;
         background-color: #4CAF50;
         color: white;
         border: none;

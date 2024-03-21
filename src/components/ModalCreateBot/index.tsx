@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Button } from '../Button'
-import { ButtonText } from '../ButtonText'
 import { Container, Card, CardMaxBot } from './styles'
 import { FiXCircle } from 'react-icons/fi';
 import { api } from '../../services/api';

@@ -18,6 +18,11 @@ export const Container = styled.div`
 export const Content = styled.div`
     grid-area: content;
     margin: 1rem 10rem;
+    @media screen and (max-width: 768px) {
+        padding:0;
+        margin:2rem;
+
+  }
     a{
         color: ${({ theme }) => theme.COLORS.WHITE};;
     }
@@ -48,8 +53,7 @@ export const Content = styled.div`
     height: 30px;
     }
     >details{
-       
-        all:unset;
+        /* all:unset; */
         width: 100%;
         padding: 16px;
         color: rgb(255,255,255/.6);

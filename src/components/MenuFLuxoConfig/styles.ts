@@ -19,6 +19,11 @@ export const Container = styled.div<ContainerProps>`
     background-color:${({ theme }) => theme.COLORS.BACKGROUND_1000};
     border-radius: 10px 10px 0 0;
     z-index: 2;
+    @media screen and (max-width: 768px) {
+        width: 95vw;
+        padding:0;
+
+  }
 
     .area-menu{
         width: 100%;

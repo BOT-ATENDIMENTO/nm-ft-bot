@@ -178,26 +178,39 @@ export function FluxoBot() {
         setUseAiConfig(updatedConfig.data.use_openai_config)
     };
 
-    const ativarDesativarIa = (checked: boolean) => {
+    const ativarDesativarIa = async (checked: boolean) => {
         if (checked) {
             setCarregando(true);
             const updatedConfig = { ...fileEdition };
             updatedConfig.data.configurations.use_openai = true;
             setFileEdition(updatedConfig)
-            saveConfig();
+            const data = {
+                filename: fileEdition.filename,
+                data: fileConfig
+            }
+            console.log(data)
+            await api.post(`/files/update-file-config/${token}`, data)
+            await api.post(`/files/public-file/${token}`, { filename: `${fileEdition.filename}` })
+            setCarregando(false);
         } else {
             setCarregando(true);
             const updatedConfig = { ...fileEdition };
             updatedConfig.data.configurations.use_openai = false;
             setFileEdition(updatedConfig)
-            saveConfig();
+            const data = {
+                filename: fileEdition.filename,
+                data: fileConfig
+            }
+            await api.post(`/files/update-file-config/${token}`, data)
+            await api.post(`/files/public-file/${token}`, { filename: `${fileEdition.filename}` })
+            setCarregando(false);
         }
-
     }
 
     const saveUpdateIa = () => {
         saveConfig();
     }
+
     const handleChangeVariables = (chaveAntiga: string, novaChave: string, novoValor: string) => {
         const novasVariaveis = { ...variables };
         delete novasVariaveis[chaveAntiga];
@@ -306,10 +319,10 @@ export function FluxoBot() {
                                     </Subtitle>
                                 </div>
                                 <div className='box2'>
-                                    <select onChange={(e) => handlePromptIA(e.target.value, 'ai_selected')} defaultValue={useAIConfig?.ai_selected}>
+                                    <select onChange={(e) => handlePromptIA(e.target.value, 'ai_selected')} value={useAIConfig?.ai_selected}>
                                         <option value={'-'}>-</option>
-                                        <option value={'gemini'} selected={useAIConfig && useAIConfig?.ai_selected === 'gemini'}>Gemini</option>
-                                        <option value={'openai'} selected={useAIConfig && useAIConfig?.ai_selected === 'openai'}>OpenAI</option>
+                                        <option value={'gemini'} >Gemini</option>
+                                        <option value={'openai'} >OpenAI</option>
                                     </select>
                                 </div>
                             </ContainerCard>
@@ -392,7 +405,7 @@ export function FluxoBot() {
                                         <p>Ativando esta Opção, o fluxo desenhado anteriormente não terá valor, e apenas o prompt aqui configurado terá influencia.</p>
                                     </Subtitle>
                                 </div>
-                                <div className='box2'>
+                                <div className='box3'>
                                     <h2>Ligar/Desligar</h2>
                                     <Switch onChange={ativarDesativarIa} checking={useAI} />
                                 </div>

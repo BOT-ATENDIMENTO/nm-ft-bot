@@ -6,6 +6,7 @@ export const Container = styled.div`
     min-width: 100%;
     min-height: 100%;
     flex-direction: row;
+
 `;
 
 export const Card = styled.div`
@@ -21,6 +22,13 @@ export const Card = styled.div`
     align-items: center;
     border-radius: 10px;
     border: 2px solid white;
+    @media screen and (max-width: 768px) {
+        width: 95vw;
+        padding:0;
+        margin:2rem;
+        margin-top: 15rem;
+
+  }
 
     >.header{
         width: 90%;

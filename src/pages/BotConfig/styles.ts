@@ -14,6 +14,7 @@ export const Container = styled.div`
        "footer" 
     ;
     background-color: ${({ theme }) => theme.COLORS.BACKGROUND_800};
+  
 `;
 
 export const Content = styled.div`
@@ -21,7 +22,12 @@ export const Content = styled.div`
     flex-direction: column;
     margin: 1rem 10rem;
     overflow-y: auto;
+    @media screen and (max-width: 768px) {
+        width: 100vw;
+        padding:0;
+        margin:0;
 
+  }
     >h2{
         text-transform: uppercase;
         border-bottom: 2px solid ${({ theme }) => theme.COLORS.ORANGE};
