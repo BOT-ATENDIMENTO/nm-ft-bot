@@ -1,29 +1,6 @@
 import { Node, MarkerType } from 'reactflow';
 
 
-const INITIAL_NODES = [
-    {
-        id: "rootNode",
-        type: 'square',
-        position: {
-            x: 200,
-            y: 300,
-        },
-        data: {
-            label: "Bem Vindo"
-        },
-    },
-    {
-        id: "d505d4-be1b-46-bfc-023819afcc",
-        type: 'square',
-        position: {
-            x: 600,
-            y: 300,
-        },
-        data: { label: "Voce ja é Cliente" },
-    },
-] satisfies Node[]
-
 export const transformConfigInNode = (Config: any) => {
     let nodes: any = []
     let edges: any = []

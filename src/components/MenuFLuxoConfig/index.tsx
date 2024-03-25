@@ -9,6 +9,10 @@ type MenuFLuxoConfigProps = {
     fileConfig: any;
     setFileConfig: any;
     children: React.ReactNode;
+    nodeReact: any;
+    setNodeReact: any;
+    edges: any;
+    setEdges: any
 };
 
 type Action = {
@@ -74,7 +78,7 @@ type OptionsProps = {
 };
 
 
-export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, fileConfig, setFileConfig }: MenuFLuxoConfigProps) {
+export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, fileConfig, setFileConfig, nodeReact, setNodeReact, edges, setEdges }: MenuFLuxoConfigProps) {
     const [editandoNome, setEditandoNome] = useState(false);
     const [menuSelected, setmenuSelected] = useState('conteudo');
     const [NodeSelected, setNodeSelected] = useState<nodeProps>();
@@ -83,7 +87,7 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
     const [textoNode, setTextoNode] = useState('Aqui vai o Texto');
     const [options, setOptions] = useState<OptionsProps[]>([]);
     const [actions, setActions] = useState<Actions>();
-    const [conditions, setConditions] = useState<conditionsProps>();
+    const [conditions, setConditions] = useState<conditionsProps | {}>();
     const [intentions, setIntentions] = useState();
     const [tipoNode, setTipoNode] = useState('text');
     const textareaRef = useRef(null);
@@ -113,9 +117,14 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
     const handleChange = (event: any) => {
         setNomeNode(event.target.value);
     };
+
     // confirmar a edicao do name
     const handleConfirmarEdicao = () => {
         setEditandoNome(false);
+        setNodeReact((prevNode: any) => {
+            prevNode.data.label = nomeNode
+        });
+
         setFileConfig((prevFileConfig: any) => ({
             ...prevFileConfig,
             nodes: {
@@ -173,7 +182,6 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
                 next: "",
                 err: ""
             }])
-            console.log(options)
         }
     }
 
@@ -213,6 +221,16 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
     // alterando o next do node
     const handleChangeNextNode = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { value } = event.target;
+        let oldEdge = edges
+        oldEdge.push({
+            id: `Id${idNode}&Next${value}`,
+            source: idNode,
+            sourceHandle: "right",
+            target: value,
+            targetHandle: "left",
+            type: "default",
+        })
+        setEdges(oldEdge)
         setFileConfig((prevFileConfig: any) => ({
             ...prevFileConfig,
             nodes: {
@@ -239,11 +257,21 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
                 }
             }));
         }
-
     }
 
+    const reset = () => {
+        setNodeSelected(undefined)
+        setNomeNode("")
+        setTextoNode("")
+        setTipoNode("")
+        setNextNode("")
+        setOptions([])
+        setActions({ entry_actions: [], exit_actions: [] })
+        setConditions({})
+    }
 
     useEffect(() => {
+        reset()
         if (fileConfig) {
             let node = fileConfig.nodes[idNode] ?? false
             if (node) {
@@ -269,6 +297,10 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
         }
         adjustTextareaHeight(textareaRef.current);
     }, [idNode])
+
+    useEffect(() => {
+
+    }, [fileConfig])
 
     return (
         <Container $openconfigs={openConfigs.toString()}>
@@ -365,36 +397,7 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
                                     </div>
                                 </section>
                             ) : tipoNode === 'options' ? (
-                                <>
-                                    <section className='area-texto'>
-                                        <textarea
-                                            ref={textareaRef}
-                                            value={textoNode}
-                                            onChange={(event: any) => { handleChangeTexto(event) }}
-                                            placeholder="Digite aqui..."
-                                            style={{ minHeight: '50px', resize: 'none' }}
-                                        />
-
-                                        <div className='area-options'>
-                                            {options.map((option: OptionsProps, index) => (
-                                                <div key={option.id}>
-                                                    <input type='text' name='text' placeholder={`Opção ${index + 1}`} maxLength={30} defaultValue={option.text} onChange={(event) => handleChangeOption(event, option.id)} />
-                                                    <select name='next' onChange={(event) => handleChangeOption(event, option.id)} value={option.next}>
-                                                        <option value='0'>-</option>
-                                                        {Object.keys(fileConfig.nodes).map((key) => (
-                                                            <option key={key} value={key}>{fileConfig.nodes[key].name}</option>
-                                                        ))}
-                                                    </select>
-                                                    <span className='span-footer'>
-                                                        <FiPlusCircle onClick={addNewOption} />
-                                                    </span>
-                                                </div>
-                                            ))}
-
-
-                                        </div>
-                                    </section>
-                                </>
+                                <></>
                             ) : (
                                 <section className='area-texto'>
                                     em Breve...
@@ -403,11 +406,20 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
                         </Conteudo>
                     ) : menuSelected === 'acoes' ? (
                         <Acao>
-                            Acao
+                            Em Breve
                         </Acao>
                     ) : menuSelected === 'condicoes' ? (
                         <Condicao>
-                            Condicao
+                            <div className='area-options'>
+                                <div>
+                                    <select name='next' onChange={(event) => handleChangeNextNode(event)} defaultValue={nextNode}>
+                                        <option value='0'>-</option>
+                                        {Object.keys(fileConfig.nodes).map((key) => (
+                                            <option key={key} value={key}>{fileConfig.nodes[key].name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
                         </Condicao>
                     ) : (
                         <>
@@ -427,7 +439,6 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
                     </ul>
                 </section>
             </Card>
-
         </Container >
     )
 }

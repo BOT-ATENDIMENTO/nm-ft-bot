@@ -1,4 +1,4 @@
-import React, { MouseEvent } from 'react';
+import React, { MouseEvent, useEffect } from 'react';
 import { Container } from "./style";
 import ReactFlow, { Background, ConnectionMode, Controls, Node, NodeMouseHandler } from 'reactflow';
 import 'reactflow/dist/style.css';
@@ -20,6 +20,8 @@ export function FluxoBotComponent({ NODE_TYPES, EDGE_TYPES, edges, nodes, onEdge
     const handleNodeClick: NodeMouseHandler = (event: any, node: any) => {
         openConfig(event, node);
     };
+
+    useEffect(() => { }, [edges])
 
     return (
         <Container>

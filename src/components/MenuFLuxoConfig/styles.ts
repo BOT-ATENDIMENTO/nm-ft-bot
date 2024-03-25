@@ -14,10 +14,11 @@ export const Container = styled.div<ContainerProps>`
     align-items: center;
     right: .1rem;
     top: 9.5rem;
-    width: 25.5rem;
+    width: 50.5rem;
     height: 78%;
     background-color:${({ theme }) => theme.COLORS.BACKGROUND_1000};
     border-radius: 10px 10px 0 0;
+    margin-right: 1rem;
     z-index: 2;
     @media screen and (max-width: 768px) {
         width: 95vw;

@@ -29,6 +29,32 @@ const EDGE_TYPES = {
     default: DefautEdge
 }
 
+type FileConfigType = {
+    data: {
+        language: string;
+        greetings: string;
+        token_bot: string;
+        plataform: string;
+        maxErrors: number;
+        config_plataform: any[];
+        configurations: {
+            endTimeSessionRedis: number;
+            timeAwaitSendMessage: number;
+            use_openai: boolean;
+        };
+        use_openai_config: {
+            ai_selected: string;
+            name_ai: string;
+            key: string;
+            prompt: string;
+        }
+        conditions: any[];
+        intentions: any;
+        variables: any;
+        nodes: any[];
+    };
+}
+
 type useAIConfigType = {
     ai_selected?: string;
     name_ai?: string;
@@ -56,30 +82,56 @@ export function FluxoBot() {
     const [visualizando, setVisualizando] = useState('fluxo');
     const [variables, setVariables] = useState<Variaveis>({})
     const [novaChave, setNovaChave] = useState('');
+    const [fileConfigToUpdate, setFileConfigToUpdate] = useState(null);
+    const [nodeReact, setNodeReact] = useState({});
+
 
     const onConnect = useCallback((connection: Connection) => {
         return setEdges((edges: any) => addEdge(connection, edges))
     }, [])
 
     function addSquareNode() {
+        let idNode = crypto.randomUUID()
+        let newNode = {
+            id: idNode,
+            type: 'square',
+            position: {
+                x: 750,
+                y: 350,
+            },
+            data: {
+                label: "Novo bloco",
+            },
+        }
         setNodes(nodes => [
             ...nodes,
-            {
-                id: crypto.randomUUID(),
-                type: 'square',
-                position: {
-                    x: 750,
-                    y: 350,
-                },
-                data: {
-                    label: "Novo bloco",
-                },
-            },
+            newNode
         ])
+        setFileConfig((prevFileConfig: any) => ({
+            ...prevFileConfig,
+            nodes: {
+                ...prevFileConfig.nodes,
+                [idNode]: {
+                    id: idNode,
+                    save_response: false,
+                    type: "text",
+                    name: "",
+                    actions: {
+                        entry_actions: [],
+                        exit_actions: []
+                    },
+                    conditions: {},
+                    text: "",
+                    next: ""
+                }
+            }
+        }));
+
     }
 
     function openConfig(event: any, node: Node) {
         if (node) {
+            setNodeReact(node)
             const nodeId = node.id;
             if (nodeId) {
                 const newProps = {
@@ -117,19 +169,22 @@ export function FluxoBot() {
         ));
     }
 
-    const saveConfig = async () => {
+    const saveConfig = async (published: boolean = false) => {
         try {
             setCarregando(true)
             // atualizando Variables
             const updatedConfig = { ...fileEdition };
             updatedConfig.data.variables = variables;
+            updatedConfig.data.nodes = fileConfig.nodes
             setFileEdition(updatedConfig)
             const data = {
                 filename: fileEdition.filename,
-                data: fileConfig
+                data: updatedConfig
             }
             await api.post(`/files/update-file-config/${token}`, data)
-            window.location.reload();
+            if (published) {
+                publicFile()
+            }
             setCarregando(false);
         } catch (e) {
             setCarregando(false)
@@ -149,6 +204,7 @@ export function FluxoBot() {
                             ...prevFileConfig.nodes,
                             [idNode]: {
                                 ...prevFileConfig.nodes[idNode],
+                                id: idNode,
                                 positions: {
                                     x: updatedNode.x,
                                     y: updatedNode.y
@@ -188,9 +244,10 @@ export function FluxoBot() {
                 filename: fileEdition.filename,
                 data: fileConfig
             }
-            console.log(data)
             await api.post(`/files/update-file-config/${token}`, data)
             await api.post(`/files/public-file/${token}`, { filename: `${fileEdition.filename}` })
+            setUseAi(true);
+            setFilePublished(fileEdition)
             setCarregando(false);
         } else {
             setCarregando(true);
@@ -203,12 +260,10 @@ export function FluxoBot() {
             }
             await api.post(`/files/update-file-config/${token}`, data)
             await api.post(`/files/public-file/${token}`, { filename: `${fileEdition.filename}` })
+            setFilePublished(fileEdition)
+            setUseAi(false);
             setCarregando(false);
         }
-    }
-
-    const saveUpdateIa = () => {
-        saveConfig();
     }
 
     const handleChangeVariables = (chaveAntiga: string, novaChave: string, novoValor: string) => {
@@ -237,7 +292,10 @@ export function FluxoBot() {
         }).then(async (result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
+                setCarregando(true)
                 await api.post(`/files/public-file/${token}`, { filename: `${fileEdition.filename}` })
+                setFilePublished(fileEdition)
+                setCarregando(false)
                 Swal.fire("Saved!", "", "success");
             } else if (result.isDenied) {
                 Swal.fire("Changes are not saved", "", "info");
@@ -245,6 +303,29 @@ export function FluxoBot() {
         });
 
     }
+
+    useEffect(() => {
+        if (fileEdition && Object.keys(fileEdition).length > 0) {
+            if (fileEdition && fileEdition.data && fileEdition.data.variables) {
+                const variaveis = Object.fromEntries(Object.entries(fileEdition.data.variables));
+                setVariables(variaveis as Variaveis);
+            }
+            setFileConfig(fileEdition.data)
+            setUseAi(fileEdition.data.configurations.use_openai);
+            if (fileEdition.data.configurations.use_openai) {
+                setUseAiConfig(fileEdition.data.use_openai_config)
+                setVisualizando('useAi')
+            }
+            let [newNodes, newEdges] = transformConfigInNode(fileEdition.data.nodes)
+            if (newNodes) {
+                setNodes(newNodes)
+            }
+            if (newEdges) {
+                setEdges(newEdges)
+            }
+        }
+    }, [])
+
     useEffect(() => {
         setCarregando(loading)
         if (data?.fileEdition && data?.fileEdition?.data) {
@@ -297,11 +378,11 @@ export function FluxoBot() {
                         <FluxoBotComponent NODE_TYPES={NODE_TYPES} EDGE_TYPES={EDGE_TYPES} onEdgesChange={onEdgesChange} onConnect={onConnect} onNodesChange={onNodesChange} nodes={nodes} edges={edges} openConfig={openConfig}>
                             <MenuFLuxoTop>
                                 <ul>
-                                    <li onClick={saveConfig}><FiSave /></li>
+                                    <li onClick={() => { saveConfig() }}><FiSave /></li>
                                 </ul>
                             </MenuFLuxoTop>
                             {idselected != '' ? (
-                                <MenuFLuxoConfig idNode={idselected} openConfigs={openConfigs} setopenConfigs={setopenConfigs} fileConfig={fileConfig} setFileConfig={setFileConfig}>
+                                <MenuFLuxoConfig idNode={idselected} openConfigs={openConfigs} setopenConfigs={setopenConfigs} fileConfig={fileConfig} setFileConfig={setFileConfig} nodeReact={nodeReact} setNodeReact={setNodeReact} edges={edges} setEdges={setEdges}>
                                     Teste
                                 </MenuFLuxoConfig>
                             ) : (
@@ -349,7 +430,7 @@ export function FluxoBot() {
                             </ContainerCard>
                             <ContainerCard>
                                 <div className='box2'>
-                                    <Button title={'Salvar'} onClick={saveUpdateIa}></Button>
+                                    <Button title={'Salvar'} onClick={saveConfig}></Button>
                                 </div>
                             </ContainerCard>
                         </ContentUseAI>
