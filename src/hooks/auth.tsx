@@ -15,23 +15,21 @@ export function AuthProvider({ children }: any) {
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             setData({ user, token })
         } catch (error: any) {
-            console.log(error)
-            if (error.message) {
-                Swal.fire({
-                    position: "top-end",
-                    icon: "error",
-                    title: error.message,
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            }
-            else if (error.response) {
+            if (error.response.data) {
                 Swal.fire({
                     position: "top-end",
                     icon: "error",
                     title: error.response.data,
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 3500
+                });
+            } else if (error.message) {
+                Swal.fire({
+                    position: "top-end",
+                    icon: "error",
+                    title: error.message,
+                    showConfirmButton: false,
+                    timer: 3500
                 });
             } else {
                 Swal.fire({
@@ -39,7 +37,7 @@ export function AuthProvider({ children }: any) {
                     icon: "error",
                     title: "Não Foi Possivel fazer Login",
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 3500
                 });
                 console.log(error)
             }

@@ -29,7 +29,7 @@ const EDGE_TYPES = {
     default: DefautEdge
 }
 
-type FileConfigType = {
+type FileEditionType = {
     data: {
         language: string;
         greetings: string;
@@ -72,7 +72,6 @@ export function FluxoBot() {
     const [nodes, setNodes] = useNodesState([]);
     const [fileEdition, setFileEdition] = useState<any>(null);
     const [filePublished, setFilePublished] = useState<any>(null);
-    const [fileConfig, setFileConfig] = useState({});
     const [openConfigs, setopenConfigs] = useState(false);
     const [idselected, setIdselected] = useState('');
     const [carregando, setCarregando] = useState(true);
@@ -82,7 +81,6 @@ export function FluxoBot() {
     const [visualizando, setVisualizando] = useState('fluxo');
     const [variables, setVariables] = useState<Variaveis>({})
     const [novaChave, setNovaChave] = useState('');
-    const [fileConfigToUpdate, setFileConfigToUpdate] = useState(null);
     const [nodeReact, setNodeReact] = useState({});
 
 
@@ -107,10 +105,10 @@ export function FluxoBot() {
             ...nodes,
             newNode
         ])
-        setFileConfig((prevFileConfig: any) => ({
-            ...prevFileConfig,
+        setFileEdition((prevFileEdition: any) => ({
+            ...prevFileEdition,
             nodes: {
-                ...prevFileConfig.nodes,
+                ...prevFileEdition.nodes,
                 [idNode]: {
                     id: idNode,
                     save_response: false,
@@ -174,17 +172,13 @@ export function FluxoBot() {
             setCarregando(true)
             // atualizando Variables
             const updatedConfig = { ...fileEdition };
-            updatedConfig.data.variables = variables;
-            updatedConfig.data.nodes = fileConfig.nodes
-            setFileEdition(updatedConfig)
+            updatedConfig.variables = variables;
             const data = {
-                filename: fileEdition.filename,
+                type: 'edition',
                 data: updatedConfig
             }
             await api.post(`/files/update-file-config/${token}`, data)
-            if (published) {
-                publicFile()
-            }
+            setFileEdition(updatedConfig)
             setCarregando(false);
         } catch (e) {
             setCarregando(false)
@@ -198,12 +192,12 @@ export function FluxoBot() {
                 if (change.position) {
                     const idNode = change.id
                     const updatedNode = change.position;
-                    setFileConfig((prevFileConfig: any) => ({
-                        ...prevFileConfig,
+                    setFileEdition((prevFileEdition: any) => ({
+                        ...prevFileEdition,
                         nodes: {
-                            ...prevFileConfig.nodes,
+                            ...prevFileEdition.nodes,
                             [idNode]: {
-                                ...prevFileConfig.nodes[idNode],
+                                ...prevFileEdition.nodes[idNode],
                                 id: idNode,
                                 positions: {
                                     x: updatedNode.x,
@@ -228,41 +222,47 @@ export function FluxoBot() {
 
     const handlePromptIA = (valor: any, chave: string) => {
         const updatedConfig = { ...fileEdition };
-        updatedConfig.data.use_openai_config = { ...updatedConfig.data.use_openai_config };
-        updatedConfig.data.use_openai_config[chave] = valor;
+        updatedConfig.use_openai_config = { ...updatedConfig.use_openai_config };
+        updatedConfig.use_openai_config[chave] = valor;
         setFileEdition(updatedConfig)
-        setUseAiConfig(updatedConfig.data.use_openai_config)
+        setUseAiConfig(updatedConfig.use_openai_config)
+    };
+
+    const handleConfigurations = (valor: any, chave: string) => {
+        const updatedConfig = { ...fileEdition };
+        updatedConfig.configurations = { ...updatedConfig.configurations };
+        updatedConfig.configurations[chave] = valor;
+        setFileEdition(updatedConfig)
     };
 
     const ativarDesativarIa = async (checked: boolean) => {
         if (checked) {
             setCarregando(true);
             const updatedConfig = { ...fileEdition };
-            updatedConfig.data.configurations.use_openai = true;
+            updatedConfig.configurations.use_openai = true;
             setFileEdition(updatedConfig)
             const data = {
-                filename: fileEdition.filename,
-                data: fileConfig
+                type: 'edition',
+                data: updatedConfig
             }
             await api.post(`/files/update-file-config/${token}`, data)
-            await api.post(`/files/public-file/${token}`, { filename: `${fileEdition.filename}` })
             setUseAi(true);
-            setFilePublished(fileEdition)
             setCarregando(false);
+            setVisualizando('useAi')
         } else {
             setCarregando(true);
             const updatedConfig = { ...fileEdition };
-            updatedConfig.data.configurations.use_openai = false;
+            updatedConfig.configurations.use_openai = false;
             setFileEdition(updatedConfig)
             const data = {
-                filename: fileEdition.filename,
-                data: fileConfig
+                type: 'edition',
+                data: updatedConfig
             }
             await api.post(`/files/update-file-config/${token}`, data)
-            await api.post(`/files/public-file/${token}`, { filename: `${fileEdition.filename}` })
-            setFilePublished(fileEdition)
             setUseAi(false);
             setCarregando(false);
+            setVisualizando('fluxo')
+
         }
     }
 
@@ -293,7 +293,7 @@ export function FluxoBot() {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
                 setCarregando(true)
-                await api.post(`/files/public-file/${token}`, { filename: `${fileEdition.filename}` })
+                await api.post(`/files/public-file/${token}`, { type: ''})
                 setFilePublished(fileEdition)
                 setCarregando(false)
                 Swal.fire("Saved!", "", "success");
@@ -305,18 +305,20 @@ export function FluxoBot() {
     }
 
     useEffect(() => {
+        console.log('atualizou File Edition')
         if (fileEdition && Object.keys(fileEdition).length > 0) {
-            if (fileEdition && fileEdition.data && fileEdition.data.variables) {
-                const variaveis = Object.fromEntries(Object.entries(fileEdition.data.variables));
+            if (fileEdition && fileEdition && fileEdition.variables) {
+                const variaveis = Object.fromEntries(Object.entries(fileEdition.variables));
                 setVariables(variaveis as Variaveis);
             }
-            setFileConfig(fileEdition.data)
-            setUseAi(fileEdition.data.configurations.use_openai);
-            if (fileEdition.data.configurations.use_openai) {
-                setUseAiConfig(fileEdition.data.use_openai_config)
+            setUseAi(fileEdition.configurations.use_openai);
+            if (fileEdition.configurations.use_openai) {
+                setUseAiConfig(fileEdition.use_openai_config)
                 setVisualizando('useAi')
             }
-            let [newNodes, newEdges] = transformConfigInNode(fileEdition.data.nodes)
+
+
+            let [newNodes, newEdges] = transformConfigInNode(fileEdition.nodes)
             if (newNodes) {
                 setNodes(newNodes)
             }
@@ -324,34 +326,13 @@ export function FluxoBot() {
                 setEdges(newEdges)
             }
         }
-    }, [])
+    }, [fileEdition])
 
     useEffect(() => {
-        setCarregando(loading)
-        if (data?.fileEdition && data?.fileEdition?.data) {
+        if (data?.fileEdition) {
             setFileEdition(data.fileEdition)
-            if (fileEdition && Object.keys(fileEdition).length > 0) {
-                if (fileEdition && fileEdition.data && fileEdition.data.variables) {
-                    const variaveis = Object.fromEntries(Object.entries(fileEdition.data.variables));
-                    setVariables(variaveis as Variaveis);
-                }
-                setFileConfig(fileEdition.data)
-                setUseAi(fileEdition.data.configurations.use_openai);
-                if (fileEdition.data.configurations.use_openai) {
-                    setUseAiConfig(fileEdition.data.use_openai_config)
-                    setVisualizando('useAi')
-                }
-
-
-                let [newNodes, newEdges] = transformConfigInNode(fileEdition.data.nodes)
-                if (newNodes) {
-                    setNodes(newNodes)
-                }
-                if (newEdges) {
-                    setEdges(newEdges)
-                }
-            }
         }
+        setCarregando(loading)
     }, [data]);
 
     useEffect(() => {
@@ -382,7 +363,7 @@ export function FluxoBot() {
                                 </ul>
                             </MenuFLuxoTop>
                             {idselected != '' ? (
-                                <MenuFLuxoConfig idNode={idselected} openConfigs={openConfigs} setopenConfigs={setopenConfigs} fileConfig={fileConfig} setFileConfig={setFileConfig} nodeReact={nodeReact} setNodeReact={setNodeReact} edges={edges} setEdges={setEdges}>
+                                <MenuFLuxoConfig idNode={idselected} openConfigs={openConfigs} setopenConfigs={setopenConfigs} fileEdition={fileEdition} setFileEdition={setFileEdition} nodeReact={nodeReact} setNodeReact={setNodeReact} edges={edges} setEdges={setEdges}>
                                     Teste
                                 </MenuFLuxoConfig>
                             ) : (
@@ -465,7 +446,7 @@ export function FluxoBot() {
                                     <Subtitle>Tempo maximo que o bot mantem a sessao aberta em segundos.</Subtitle>
                                 </div>
                                 <div className='box2'>
-                                    <input type='text' value={useAIConfig && fileEdition.data.configurations.endTimeSessionRedis} />
+                                    <input type='text' value={useAIConfig && fileEdition.configurations.endTimeSessionRedis} onChange={(e) => handleConfigurations(e.target.value, 'endTimeSessionRedis')} />
                                 </div>
                             </ContainerCard>
                             <ContainerCard>
@@ -474,7 +455,7 @@ export function FluxoBot() {
                                     <Subtitle>Tempo de espera para o bot enviar mensagens em segundos.</Subtitle>
                                 </div>
                                 <div className='box2'>
-                                    <input type='text' value={useAIConfig && fileEdition.data.configurations.timeAwaitSendMessage} />
+                                    <input type='text' value={useAIConfig && fileEdition.configurations.timeAwaitSendMessage} onChange={(e) => handleConfigurations(e.target.value, 'timeAwaitSendMessage')} />
                                 </div>
                             </ContainerCard>
                             <ContainerCard>

@@ -5,7 +5,7 @@ import { FiXCircle } from 'react-icons/fi';
 import { api } from '../../services/api';
 import Swal from 'sweetalert2'
 
-export function ModalCreateBot({ isActive = false, limiteIsActive = false, setModalActive, listBots }: any) {
+export function ModalCreateBot({ isActive = false, limiteIsActive = false, setModalActive, listBots, setCarregando }: any) {
 
     const [btnCriar, setBtnCriar] = useState("Criar");
     const [name, setName] = useState("");
@@ -28,10 +28,12 @@ export function ModalCreateBot({ isActive = false, limiteIsActive = false, setMo
             });
             return
         }
-        setBtnCriar('Criando...')
+        setCarregando(true);
+        setBtnCriar('Criando...');
+        handleInativeModal();
         const bot = await api.post('/bots/create', data)
-        listBots()
-        handleInativeModal()
+        listBots();
+        setCarregando(false);
     }
     return (
         <Container>

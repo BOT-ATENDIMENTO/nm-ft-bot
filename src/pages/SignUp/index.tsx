@@ -21,7 +21,7 @@ export function SignUp() {
                 icon: "error",
                 title: "Preencha todos os Campos",
                 showConfirmButton: false,
-                timer: 1500
+                timer: 3500
             });
             return
         }
@@ -33,10 +33,10 @@ export function SignUp() {
         }).then(() => {
             Swal.fire({
                 position: "top-end",
-                icon: "error",
+                icon: "success",
                 title: "Usuario Cadastrado Com Sucesso!",
                 showConfirmButton: false,
-                timer: 1500
+                timer: 3500
             });
             navigate('/login')
         }).catch((error) => {
@@ -46,7 +46,7 @@ export function SignUp() {
                     icon: "error",
                     title: error.response.data,
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 3500
                 });
             } else {
                 Swal.fire({
@@ -54,7 +54,7 @@ export function SignUp() {
                     icon: "error",
                     title: "Nao foi Possivel Cadastrar.",
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 3500
                 });
             }
         })

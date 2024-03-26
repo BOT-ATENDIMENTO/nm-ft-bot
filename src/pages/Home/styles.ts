@@ -20,6 +20,7 @@ export const Content = styled.div`
     grid-area: content;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
     place-items: center;
     height: 100%;
     >div{
@@ -31,6 +32,16 @@ export const Content = styled.div`
         height: 15em;
         text-align: center;
     }
+
+    @media screen and (max-width: 768px) {
+        grid-template-columns: 1fr;
+
+        >div{
+            width: 90%;
+            margin-bottom: 2rem;
+        }
+
+  }
 `;
 
 

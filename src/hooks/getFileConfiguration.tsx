@@ -26,32 +26,10 @@ const getFileConfig = (token: string | any): ApiHookResult => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await api.post(`/bots/find/${token}`);
-                if (response.data.bots) {
-                    const files = response.data.bots.files;
-                    const filePublished = files.find((item: any) => item.type === 'published');
-                    const fileEdition = files.find((item: any) => item.type === 'edition');
-                    if (fileEdition) {
-                        const fileEditionData = await getFileData(token, fileEdition.filename);
-                        if (fileEditionData) {
-                            setData((prevData) => ({
-                                ...prevData!,
-                                fileEdition: fileEditionData ? {
-                                    filename: fileEditionData.filename ?? '',
-                                    data: fileEditionData.data
-                                } : null
-                            }));
-                        }
-                    }
-                    if (filePublished) {
-                        const filePublishedData = await getFileData(token, filePublished.filename);
-                        setData((prevData) => ({
-                            ...prevData!,
-                            filePublished: filePublishedData
-                                ? { filename: filePublishedData.filename ?? '', data: filePublishedData.data }
-                                : null
-                        }));
-                    }
+                let fileEditionData = await getFileData(token, 'edition');
+                let filePublishedData = await getFileData(token, 'published');
+                if (fileEditionData && filePublishedData) {
+                    setData({ fileEdition: fileEditionData, filePublished: filePublishedData })
                 }
             } catch (error: any) {
                 console.error(error);
@@ -60,18 +38,17 @@ const getFileConfig = (token: string | any): ApiHookResult => {
                 setLoading(false);
             }
         };
-
         fetchData();
     }, [token]);
 
     return { data, loading, error };
 };
 
-const getFileData = async (token: string, filename: string): Promise<File | null> => {
+const getFileData = async (token: string, type: string): Promise<File | null> => {
     try {
-        const response = await api.post(`/files/get-file-config/${token}`, { filename });
+        const response = await api.post(`/files/get-file-config/${token}`, { type });
         if (response.data) {
-            return { filename, data: response.data.data };
+            return response.data.data
         }
         return null;
     } catch (error: any) {

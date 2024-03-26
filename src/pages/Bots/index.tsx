@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { ModalCreateBot } from '../../components/ModalCreateBot';
 import { useAuth } from '../../hooks/auth';
 import Swal from 'sweetalert2';
+import { Loading } from '../../components/Loading';
 
 export function Bots() {
     const { user }: any = useAuth();
@@ -15,6 +16,7 @@ export function Bots() {
     const [limiteIsActive, setLimiteIsActive] = useState(false)
     const [bots, setBots] = useState([])
     const [qtdBots, setQtdBots] = useState(0)
+    const [carregando, setCarregando] = useState(true);
 
     async function listBots() {
         try {
@@ -23,6 +25,7 @@ export function Bots() {
                 setBots(response.data.bots)
                 setQtdBots(response.data.bots.length)
             }
+            setCarregando(false);
             return response.data.bots
 
         } catch (error: any) {
@@ -57,42 +60,47 @@ export function Bots() {
             setLimiteIsActive(true)
         }
     }, [qtdBots])
+
     return (
         <Container>
             <Header />
             {modalActive && (
-                <ModalCreateBot isActive={modalActive} limiteIsActive={limiteIsActive} setModalActive={setModalActive} listBots={listBots} />
+                <ModalCreateBot isActive={modalActive} limiteIsActive={limiteIsActive} setModalActive={setModalActive} listBots={listBots} setCarregando={setCarregando} />
             )}
-            <Content>
-                <div>
-                    <button onClick={handleModal}><FiPlus /> Novo</button>
-                </div>
-                {bots.map((item: any, index) => (
-                    <details key={index}>
-                        <summary>{item.name}
-                            <div>
-                                <Link to={`/contacts/${item.token}`}><FiUsers /></Link>
-                                <Link to={`/fluxo-bot/${item.token}`}><FiEdit /></Link>
-                                <Link to={`/bot/${item.token}`}><FiSettings /></Link>
-                            </div>
-                        </summary>
-                        <ul>
-                            <li>
-                                <p>Status: <span>{item.status == 1 ? 'Ativo' : 'Atrasado'}</span></p>
-                            </li>
-                            <li>
-                                <p>Nome: <span>{item.name}</span></p>
-                            </li>
-                            <li>
-                                <p>Token: <span>{item.token}</span></p>
-                            </li>
-                            <li>
-                                <p>Plataforma: <span>{item.plataform}</span></p>
-                            </li>
-                        </ul>
-                    </details>
-                ))}
-            </Content>
+            {carregando ? (
+                <Loading />
+            ) : (
+                <Content>
+                    <div>
+                        <button onClick={handleModal}><FiPlus /> Novo</button>
+                    </div>
+                    {bots.map((item: any, index) => (
+                        <details key={index}>
+                            <summary>{item.name}
+                                <div>
+                                    <Link to={`/contacts/${item.token}`}><FiUsers /></Link>
+                                    <Link to={`/fluxo-bot/${item.token}`}><FiEdit /></Link>
+                                    <Link to={`/bot/${item.token}`}><FiSettings /></Link>
+                                </div>
+                            </summary>
+                            <ul>
+                                <li>
+                                    <p>Status: <span>{item.status == 1 ? 'Ativo' : 'Atrasado'}</span></p>
+                                </li>
+                                <li>
+                                    <p>Nome: <span>{item.name}</span></p>
+                                </li>
+                                <li>
+                                    <p>Token: <span>{item.token}</span></p>
+                                </li>
+                                <li>
+                                    <p>Plataforma: <span>{item.plataform}</span></p>
+                                </li>
+                            </ul>
+                        </details>
+                    ))}
+                </Content>
+            )}
         </Container>
     );
 }

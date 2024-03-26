@@ -6,8 +6,8 @@ type MenuFLuxoConfigProps = {
     idNode: string;
     openConfigs: boolean;
     setopenConfigs: any;
-    fileConfig: any;
-    setFileConfig: any;
+    fileEdition: any;
+    setFileEdition: any;
     children: React.ReactNode;
     nodeReact: any;
     setNodeReact: any;
@@ -78,7 +78,7 @@ type OptionsProps = {
 };
 
 
-export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, fileConfig, setFileConfig, nodeReact, setNodeReact, edges, setEdges }: MenuFLuxoConfigProps) {
+export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, fileEdition, setFileEdition, nodeReact, setNodeReact, edges, setEdges }: MenuFLuxoConfigProps) {
     const [editandoNome, setEditandoNome] = useState(false);
     const [menuSelected, setmenuSelected] = useState('conteudo');
     const [NodeSelected, setNodeSelected] = useState<nodeProps>();
@@ -96,12 +96,12 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
     const handleChangeTexto = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setTextoNode(event.target.value);
         adjustTextareaHeight(event.target);
-        setFileConfig((prevFileConfig: any) => ({
-            ...prevFileConfig,
+        setFileEdition((prevfileEdition: any) => ({
+            ...prevfileEdition,
             nodes: {
-                ...prevFileConfig.nodes,
+                ...prevfileEdition.nodes,
                 [idNode]: {
-                    ...prevFileConfig.nodes[idNode],
+                    ...prevfileEdition.nodes[idNode],
                     text: textoNode
                 }
             }
@@ -125,12 +125,12 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
             prevNode.data.label = nomeNode
         });
 
-        setFileConfig((prevFileConfig: any) => ({
-            ...prevFileConfig,
+        setFileEdition((prevfileEdition: any) => ({
+            ...prevfileEdition,
             nodes: {
-                ...prevFileConfig.nodes,
+                ...prevfileEdition.nodes,
                 [idNode]: {
-                    ...prevFileConfig.nodes[idNode],
+                    ...prevfileEdition.nodes[idNode],
                     name: nomeNode
                 }
             }
@@ -151,12 +151,12 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
             return
         }
         setTipoNode(type)
-        setFileConfig((prevFileConfig: any) => ({
-            ...prevFileConfig,
+        setFileEdition((prevfileEdition: any) => ({
+            ...prevfileEdition,
             nodes: {
-                ...prevFileConfig.nodes,
+                ...prevfileEdition.nodes,
                 [idNode]: {
-                    ...prevFileConfig.nodes[idNode],
+                    ...prevfileEdition.nodes[idNode],
                     type,
                 }
             }
@@ -231,12 +231,12 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
             type: "default",
         })
         setEdges(oldEdge)
-        setFileConfig((prevFileConfig: any) => ({
-            ...prevFileConfig,
+        setFileEdition((prevfileEdition: any) => ({
+            ...prevfileEdition,
             nodes: {
-                ...prevFileConfig.nodes,
+                ...prevfileEdition.nodes,
                 [idNode]: {
-                    ...prevFileConfig.nodes[idNode],
+                    ...prevfileEdition.nodes[idNode],
                     next: value
                 }
             }
@@ -246,12 +246,12 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
     const handleopenConfig = () => {
         setopenConfigs(false)
         if (tipoNode == 'options') {
-            setFileConfig((prevFileConfig: any) => ({
-                ...prevFileConfig,
+            setFileEdition((prevfileEdition: any) => ({
+                ...prevfileEdition,
                 nodes: {
-                    ...prevFileConfig.nodes,
+                    ...prevfileEdition.nodes,
                     [idNode]: {
-                        ...prevFileConfig.nodes[idNode],
+                        ...prevfileEdition.nodes[idNode],
                         options: options
                     }
                 }
@@ -272,8 +272,8 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
 
     useEffect(() => {
         reset()
-        if (fileConfig) {
-            let node = fileConfig.nodes[idNode] ?? false
+        if (fileEdition) {
+            let node = fileEdition.nodes[idNode] ?? false
             if (node) {
                 setNodeSelected(node)
                 setNomeNode(node.name)
@@ -300,7 +300,7 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
 
     useEffect(() => {
 
-    }, [fileConfig])
+    }, [fileEdition])
 
     return (
         <Container $openconfigs={openConfigs.toString()}>
@@ -348,8 +348,8 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
                                         <div>
                                             <select name='next' onChange={(event) => handleChangeNextNode(event)} value={nextNode}>
                                                 <option value='0'>-</option>
-                                                {Object.keys(fileConfig.nodes).map((key) => (
-                                                    <option key={key} value={key}>{fileConfig.nodes[key].name}</option>
+                                                {Object.keys(fileEdition.nodes).map((key) => (
+                                                    <option key={key} value={key}>{fileEdition.nodes[key].name}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -369,8 +369,8 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
                                         <div>
                                             <select name='next' onChange={(event) => handleChangeNextNode(event)} value={nextNode}>
                                                 <option value='0'>-</option>
-                                                {Object.keys(fileConfig.nodes).map((key) => (
-                                                    <option key={key} value={key}>{fileConfig.nodes[key].name}</option>
+                                                {Object.keys(fileEdition.nodes).map((key) => (
+                                                    <option key={key} value={key}>{fileEdition.nodes[key].name}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -389,8 +389,8 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
                                         <div>
                                             <select name='next' onChange={(event) => handleChangeNextNode(event)} value={nextNode}>
                                                 <option value='0'>-</option>
-                                                {Object.keys(fileConfig.nodes).map((key) => (
-                                                    <option key={key} value={key}>{fileConfig.nodes[key].name}</option>
+                                                {Object.keys(fileEdition.nodes).map((key) => (
+                                                    <option key={key} value={key}>{fileEdition.nodes[key].name}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -414,8 +414,8 @@ export function MenuFLuxoConfig({ idNode, openConfigs = false, setopenConfigs, f
                                 <div>
                                     <select name='next' onChange={(event) => handleChangeNextNode(event)} defaultValue={nextNode}>
                                         <option value='0'>-</option>
-                                        {Object.keys(fileConfig.nodes).map((key) => (
-                                            <option key={key} value={key}>{fileConfig.nodes[key].name}</option>
+                                        {Object.keys(fileEdition.nodes).map((key) => (
+                                            <option key={key} value={key}>{fileEdition.nodes[key].name}</option>
                                         ))}
                                     </select>
                                 </div>

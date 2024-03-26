@@ -206,14 +206,11 @@ export function BotConfig() {
             setButtonTextUpload("Upload de Arquivos");
             return
         }
-        let result1 = await api.post(`files/update-file-config/${token}`, {
-            filename: `${token}-file-config-edition.json`,
+        await api.post(`files/update-file-config/${token}`, {
+            type: `edition`,
             data: newConfig
         })
-        let result = await api.post(`files/update-file-config/${token}`, {
-            filename: `${token}-file-config-published.json`,
-            data: newConfig
-        })
+        await api.post(`files/public-file/${token}`)
         Swal.fire({
             position: "top-end",
             icon: "success",
