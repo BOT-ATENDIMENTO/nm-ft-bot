@@ -1,12 +1,15 @@
 import React, { Suspense } from "react";
-import logo from "./logo.svg";
-import "./App.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import SingIn from "./Pages/singIn/SingIn";
 
 function App() {
   return (
-    <Suspense fallback={"Load"}>
-      <h1>teste</h1>
-    </Suspense>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<SingIn />} />
+        <Route path="/:id?" element={<SingIn />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

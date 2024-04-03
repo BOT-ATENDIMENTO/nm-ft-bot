@@ -21,10 +21,10 @@ module.exports = {
             "@babel/preset-typescript",
             ["@babel/preset-react", { runtime: "automatic" }],
           ],
-          plugins: [
-            "react-hot-loader/babel",
-            ["@babel/plugin-proposal-class-properties", { loose: true }],
-          ],
+          // plugins: [
+          //   "react-hot-loader/babel",
+          //   ["@babel/plugin-proposal-class-properties", { loose: true }],
+          // ],
         },
       },
       {
