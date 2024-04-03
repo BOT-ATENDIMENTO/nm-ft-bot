@@ -8,6 +8,12 @@ module.exports = {
   },
   target: "web",
   module: {
+    // parser: {
+    //   javascript: {
+    //     // the core modification
+    //     dynamicImportMode: "eager",
+    //   },
+    // },
     rules: [
       {
         test: /\.(js|jsx|tsx|ts)$/,

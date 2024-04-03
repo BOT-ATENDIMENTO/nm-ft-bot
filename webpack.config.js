@@ -5,6 +5,7 @@ const common = require("./webpack.common.js");
 const { merge } = require("webpack-merge");
 const Dotenv = require("dotenv-webpack");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
+const { dependencies } = require("./package.json");
 
 module.exports = merge(common, {
   mode: "development",
@@ -21,16 +22,26 @@ module.exports = merge(common, {
       expand: true,
     }),
     new ModuleFederationPlugin({
-      name: "ft_bot",
-      library: { type: "var", name: "ft_bot" },
-      filename: "remoteEntry.js",
-      // exposes: {
-      //   "./Bot": "./src/Bot",
-      // },
       remotes: {
-        remoteApp: "http://localhost:6006/remoteEntry.j",
+        remoteApp: "remoteApp@http://localhost:6006/remoteEntry.js",
       },
-      shared: ["react", "react-dom"],
+      shared: {
+        react: {
+          singleton: true,
+          eager: true,
+          requiredVersion: dependencies["react"],
+        },
+        "react-dom": {
+          singleton: true,
+          eager: true,
+          requiredVersion: dependencies["react-dom"],
+        },
+        "react-router-dom": {
+          singleton: true,
+          eager: true,
+          requiredVersion: dependencies["react-router-dom"],
+        },
+      },
     }),
     new ForkTsCheckerWebpackPlugin(),
     new HtmlWebpackPlugin({

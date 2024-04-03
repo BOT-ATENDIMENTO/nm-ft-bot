@@ -1,27 +1,40 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "outDir": "./dist",
+    "target": "es2017",
     "lib": [
+      "es6",
       "dom",
       "dom.iterable",
       "esnext"
     ],
+    "baseUrl": "./",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "strict": false, // Change to true Impede que valores null ou undefined sejam atribuídos a tipos não opcionais.
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": false,
-    "noEmit": true,
-    "jsx": "react-jsx"
+    "sourceMap": true, // Source maps são arquivos que mapeiam o código compilado (minificado) de volta para o código-fonte original.
+    "declaration": true, // Gera arquivos de declaração (.d.ts) para o código compilado.
+    "noEmit": false, // Se você desejar desativar a geração de arquivos de saída (por exemplo, se estiver usando outra ferramenta como Babel para lidar com a transpilação), você pode definir "noEmit" como true. Isso fará com que o TypeScript execute apenas a verificação de tipos sem gerar os arquivos de saída. 
+    "declarationMap": true,
+    "jsx": "react-jsx",
+    "typeRoots": [ // O TypeScript procura por arquivos de definição de tipo em pastas especificadas. Por padrão, ele procura em node_modules/@types, mas você pode adicionar outras pastas usando a opção typeRoots.
+      "node_modules/@types"
+    ],
+    "paths": { // A opção paths permite que você defina mapeamentos de caminhos para módulos. Isso é útil quando você deseja substituir a resolução de módulos padrão do TypeScript.
+      "react": [ // O TypeScript procura por arquivos de definição de tipo em pastas especificadas. Por padrão, ele procura em node_modules/@types, mas você pode adicionar outras pastas usando a opção typeRoots.
+        "./node_modules/@types/react"
+      ]
+    }
   },
   "include": [
-    "src",
-    "webpack.config.js"
+    "./src"
   ]
 }
