@@ -1,5 +1,8 @@
-import React from "react";
+import { on } from "events";
+import { useFormik } from "formik";
+import React, { FormEvent, Fragment, useContext } from "react";
 import { Suspense, lazy } from "react";
+import { SignInProps, useAuth } from "../../hooks/Auth";
 import {
   Button,
   Container,
@@ -7,8 +10,8 @@ import {
   Form,
   Titulo,
   InputText,
-  IconFaUser,
-  IconKey,
+  IconEmail,
+  IconLock,
   CardBetween,
   InputCheckbox,
   Link,
@@ -19,58 +22,91 @@ import {
   IconApple,
   IconFacebook,
   IconGoogle,
-  Image,
-} from "remoteApp/Button";
-// const Button = lazy(() => import("remoteApp/Button"));
-
+  Img,
+} from "remoteApp/Components";
+import * as yup from "yup";
+import { ToastContainer, toast } from "react-toastify";
+import { AuthContext } from "../../hooks/Auth";
 export default function SingIn() {
-  function handleSignIn() {
-    console.log("Logando...");
-  }
+  // const { signIn } = useContext(updateProfile);
+  const { signIn } = useContext(AuthContext);
+  const LoginFormSchema = yup.object().shape({
+    email: yup
+      .string()
+      .email("Endereço de e-mail inválido")
+      .required("Campo obrigatório"),
+    password: yup.string().required("Campo obrigatório"),
+  });
+
+  const handleSubmit = (val: SignInProps) => {
+    let data = {
+      email: val.email,
+      password: val.password,
+    };
+    return signIn(data);
+  };
+
   return (
     <Suspense fallback={<p>Loading</p>}>
       <Container>
-        <CardContent containerSize="50%" contentSize="80%">
-          <form>
-            <Titulo title="LOGIN" center="center" />
-            <InputText
-              placeholder="Email"
-              label="E-mail"
-              // startAdornment={<IconFaUser />}
-            />
-            <InputText
-              placeholder="Password"
-              label="Password"
-              // startAdornment={<IconKey />}
-            />
+        <ToastContainer />
+        <CardContent containerSize="50%" contentSize="80%" bg="primary">
+          <Titulo title="LOGIN" center="center" />
+          <Form onSubmit={handleSubmit} validationSchema={LoginFormSchema}>
+            {(formikProps) => (
+              <Fragment>
+                <InputText
+                  placeholder="Email"
+                  label="E-mail"
+                  name="email"
+                  errorMessage={formikProps.errors.password}
+                  startAdornment={<IconEmail />}
+                  onChange={(e) =>
+                    formikProps.setFieldValue("email", e.target.value)
+                  }
+                />
 
-            <CardBetween>
+                <InputText
+                  placeholder="Password"
+                  label="Password"
+                  name="password"
+                  type="password"
+                  errorMessage={formikProps.errors.password}
+                  error={formikProps.errors.email}
+                  startAdornment={<IconLock />}
+                  onChange={(e) =>
+                    formikProps.setFieldValue("password", e.target.value)
+                  }
+                />
+                <Button children="Entrar" color="secondary" type="submit" />
+              </Fragment>
+            )}
+          </Form>
+          {/* <CardBetween>
               <InputCheckbox label="Lembrar senha" type="checkbox" />
               <Link to="/signup" title="Esqueci minha senha" />
-            </CardBetween>
-            <Row />
-            <Button children="Entrar" onClick={handleSignIn} />
+            </CardBetween> */}
+          <CardCenter bg="primary">
+            <Text text="Não tem uma conta?" />
+            <Link to="/signup" title="Cadastrar" />
+          </CardCenter>
+          <Row />
 
-            <CardCenter>
-              <Text text="Não tem uma conta?" />
-              <Link to="/signup" title="Cadastrar" />
-            </CardCenter>
-
-            <CardCenter>
+          <CardCenter>
+            <Column>
               <Text text="Logar com" size={20} />
-
-              {/* <IconApple size="40" />
-                  <IconFacebook size="40" />
-                  <IconGoogle size="40" /> */}
-            </CardCenter>
-          </form>
+              <Row>
+                <IconApple size="40" />
+                <IconFacebook size="40" />
+                <IconGoogle size="40" />
+              </Row>
+            </Column>
+          </CardCenter>
         </CardContent>
 
-        <CardContent
-          contentSize="100%"
-          containerSize="70%"
-          color="blue"
-        ></CardContent>
+        <CardContent contentSize="100%" containerSize="70%" bg="secondary">
+          <Img src="sigin.png" alt="Imagem de fundo" width={350} height={300} />
+        </CardContent>
       </Container>
     </Suspense>
   );
