@@ -1,19 +1,18 @@
-import { on } from "events";
-import { useFormik } from "formik";
-import React, { FormEvent, Fragment, useContext } from "react";
-import { Suspense, lazy } from "react";
-import { SignInProps, useAuth } from "../../hooks/Auth";
+import React, { Fragment, useContext, Suspense } from "react";
+import * as yup from "yup";
+import { SignInProps } from "../../Contexts/Auth";
+import { ToastContainer } from "react-toastify";
+import { AuthContext } from "../../Contexts/Auth";
 import {
   Button,
   Container,
   CardContent,
+  CardContentRadius,
   Form,
   Titulo,
   InputText,
   IconEmail,
   IconLock,
-  CardBetween,
-  InputCheckbox,
   Link,
   Row,
   CardCenter,
@@ -24,12 +23,10 @@ import {
   IconGoogle,
   Img,
 } from "remoteApp/Components";
-import * as yup from "yup";
-import { ToastContainer, toast } from "react-toastify";
-import { AuthContext } from "../../hooks/Auth";
+
 export default function SingIn() {
-  // const { signIn } = useContext(updateProfile);
   const { signIn } = useContext(AuthContext);
+
   const LoginFormSchema = yup.object().shape({
     email: yup
       .string()
@@ -48,34 +45,38 @@ export default function SingIn() {
 
   return (
     <Suspense fallback={<p>Loading</p>}>
-      <Container>
+      <Container bg="tertiary">
         <ToastContainer />
-        <CardContent containerSize="50%" contentSize="80%" bg="primary">
-          <Titulo title="LOGIN" center="center" />
+
+        <CardContentRadius
+          containerSize="50%"
+          contentSize="80%"
+          bg="white"
+          radius="right"
+        >
+          <Titulo title="LOGIN" center="center" font="secondary" size={40} />
           <Form onSubmit={handleSubmit} validationSchema={LoginFormSchema}>
-            {(formikProps) => (
+            {(props, touched) => (
               <Fragment>
                 <InputText
-                  placeholder="Email"
+                  placeholder="Digite seu e-mail"
                   label="E-mail"
                   name="email"
-                  errorMessage={formikProps.errors.password}
-                  startAdornment={<IconEmail />}
-                  onChange={(e) =>
-                    formikProps.setFieldValue("email", e.target.value)
-                  }
+                  errorMessage={props.errors.email}
+                  startAdornment={<IconEmail size={19} />}
+                  onChange={(e) => props.setFieldValue("email", e.target.value)}
                 />
 
                 <InputText
-                  placeholder="Password"
+                  placeholder="Digite sua senha"
                   label="Password"
                   name="password"
                   type="password"
-                  errorMessage={formikProps.errors.password}
-                  error={formikProps.errors.email}
-                  startAdornment={<IconLock />}
+                  errorMessage={props.errors.password}
+                  error={props.errors.email}
+                  startAdornment={<IconLock size={19} />}
                   onChange={(e) =>
-                    formikProps.setFieldValue("password", e.target.value)
+                    props.setFieldValue("password", e.target.value)
                   }
                 />
                 <Button children="Entrar" color="secondary" type="submit" />
@@ -86,15 +87,20 @@ export default function SingIn() {
               <InputCheckbox label="Lembrar senha" type="checkbox" />
               <Link to="/signup" title="Esqueci minha senha" />
             </CardBetween> */}
-          <CardCenter bg="primary">
-            <Text text="Não tem uma conta?" />
-            <Link to="/signup" title="Cadastrar" />
+          <CardCenter bg="white">
+            <Text text="Não tem uma conta?" font="secondary" />
+            <Link
+              to="/cadastrar"
+              title="Cadastrar."
+              size={20}
+              font="secondary"
+            />
           </CardCenter>
           <Row />
 
           <CardCenter>
             <Column>
-              <Text text="Logar com" size={20} />
+              <Text text="Logar com" size={20} font="secondary" />
               <Row>
                 <IconApple size="40" />
                 <IconFacebook size="40" />
@@ -102,9 +108,9 @@ export default function SingIn() {
               </Row>
             </Column>
           </CardCenter>
-        </CardContent>
+        </CardContentRadius>
 
-        <CardContent contentSize="100%" containerSize="70%" bg="secondary">
+        <CardContent contentSize="100%" containerSize="70%" bg="tertiary">
           <Img src="sigin.png" alt="Imagem de fundo" width={350} height={300} />
         </CardContent>
       </Container>

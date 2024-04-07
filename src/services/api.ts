@@ -20,6 +20,14 @@ class AuthService {
       token: token,
     });
   }
+  static register(data) {
+    return this.client.post("/users/create", {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      phone: data.phone,
+    });
+  }
 }
 
 export default AuthService;

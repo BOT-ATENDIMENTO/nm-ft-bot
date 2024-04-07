@@ -5,9 +5,9 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import AuthService from "../services/api";
-import { ToastContainer, toast } from "react-toastify";
-
+import { toast } from "react-toastify";
 interface AuthContextData {
   user?: UserProps;
   signIn: (credentials: SignInProps) => Promise<void>;
@@ -32,10 +32,12 @@ export interface SignInProps {
   password: string;
 }
 
-type SignUpProps = {
+export interface SignUpProps {
   email: string;
   password: string;
-};
+  name: string;
+  phone: string;
+}
 
 type AuthProviderProps = {
   children: ReactNode;
@@ -44,34 +46,49 @@ type AuthProviderProps = {
 export const AuthContext = createContext({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<UserProps>();
+  const navigate = useNavigate();
+  const [user, setUser] = useState<UserProps | undefined>();
   const [token, setToken] = useState<TokenProps>();
 
   // Login
   async function signIn({ email, password }: SignInProps) {
-    console.log("entrou", email, password);
     try {
       const response = await AuthService.login(email, password);
-      console.log(response);
-      const { user, token } = response.data;
+      console.log("response", response);
+      const { user, token } = (await response.data) || {};
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
       toast.success("Logado com sucesso!");
       setUser(user);
       setToken(token);
+      navigate("/home");
     } catch (error: any) {
       if (error) {
-        console.log(error);
-        toast.error(error.response.data);
-      } else if (error.message) {
-        console.log(error.message);
-        toast.error(error.message);
-      } else {
+        console.log("err", error);
         toast.error("Não Foi Possivel fazer Login");
       }
     }
   }
-
+  //  cadastrar
+  async function signUp({ email, password, name, phone }: SignUpProps) {
+    const data = {
+      email,
+      password,
+      name,
+      phone,
+    };
+    try {
+      const response = await AuthService.register(data);
+      toast.success("Cadastrado com sucesso!");
+      navigate("/login");
+    } catch (error: any) {
+      console.log("err", error);
+      if (error) {
+        console.log("err", error);
+        toast.error("Não Foi Possivel fazer Cadastro");
+      }
+    }
+  }
   // function signOut() {
   //   localStorage.removeItem("token");
   //   localStorage.removeItem("user");
@@ -108,7 +125,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setToken(token);
       setUser(user);
     } catch (error: any) {
-      console.log(error);
       // signOut();
     }
   }
@@ -135,6 +151,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         user,
         token,
         signIn,
+        signUp,
       }}
     >
       {children}

@@ -65,4 +65,5 @@ const getFileData = async (
     throw new Error("Erro ao obter dados do arquivo.");
   }
 };
+
 export default getFileConfig;

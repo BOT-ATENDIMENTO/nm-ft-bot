@@ -1,0 +1,19 @@
+version: "3.3"
+volumes:
+  data:
+
+services:
+  app:
+    build:
+      dockerfile: ./Dockerfile
+    container_name: frontend
+    restart: always
+    ports:
+      - ${URL_PORT}:${URL_PORT}
+    environment:
+      - API_FRONTEND_URL=${API_FRONTEND_URL}
+      - API_BACKEND_URL=${API_BACKEND_URL}
+      - API_URL_SERVELESS_BOT=${API_URL_SERVELESS_BOT}
+    volumes:
+      - ./src:/usr/src/app/src
+    # command: bash -c "npm run db:create && npm run migrate:up && npm run seed:all"
