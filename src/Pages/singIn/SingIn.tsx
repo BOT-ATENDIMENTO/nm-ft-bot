@@ -1,28 +1,27 @@
-import React, { Fragment, useContext, Suspense } from "react";
-import * as yup from "yup";
-import { SignInProps } from "../../Contexts/Auth";
+import { Fragment, Suspense, useContext } from "react";
 import { ToastContainer } from "react-toastify";
-import { AuthContext } from "../../Contexts/Auth";
 import {
   Button,
-  Container,
+  CardCenter,
   CardContent,
   CardContentRadius,
-  Form,
-  Titulo,
-  InputText,
-  IconEmail,
-  IconLock,
-  Link,
-  Row,
-  CardCenter,
-  Text,
   Column,
+  Container,
+  Form,
   IconApple,
+  IconEmail,
   IconFacebook,
   IconGoogle,
+  IconLock,
   Img,
+  InputText,
+  Link,
+  Row,
+  Text,
+  Titulo,
 } from "remoteApp/Components";
+import * as yup from "yup";
+import { AuthContext, SignInProps } from "../../Contexts/Auth";
 
 export default function SingIn() {
   const { signIn } = useContext(AuthContext);
@@ -79,7 +78,16 @@ export default function SingIn() {
                     props.setFieldValue("password", e.target.value)
                   }
                 />
-                <Button children="Entrar" color="secondary" type="submit" />
+
+                <Row>
+                  <Button
+                    children="Entrar"
+                    type="submit"
+                    size="size"
+                    backgroundColor="tertiary"
+                    color="primary"
+                  />
+                </Row>
               </Fragment>
             )}
           </Form>

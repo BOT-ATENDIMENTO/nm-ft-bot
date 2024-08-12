@@ -1,27 +1,25 @@
-import React, { Fragment, useContext, Suspense } from "react";
-import * as yup from "yup";
-import { SignInProps, SignUpProps } from "../../Contexts/Auth";
+import { Fragment, Suspense, useContext } from "react";
 import { ToastContainer } from "react-toastify";
-import { AuthContext } from "../../Contexts/Auth";
 import {
   Button,
-  Container,
+  CardCenter,
   CardContent,
+  CardContentRadius,
+  Container,
   Form,
-  Titulo,
-  InputText,
   IconEmail,
   IconLock,
+  IconPhone,
+  IconUser,
+  Img,
+  InputText,
   Link,
   Row,
-  CardCenter,
   Text,
-  CardContentRadius,
-  IconApple,
-  IconUser,
-  IconPhone,
-  Img,
+  Titulo,
 } from "remoteApp/Components";
+import * as yup from "yup";
+import { AuthContext, SignUpProps } from "../../Contexts/Auth";
 
 export default function SignUp() {
   const { signUp } = useContext(AuthContext);

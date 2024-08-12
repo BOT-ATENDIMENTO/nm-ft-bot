@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import AuthService from "../services/api";
 interface File {
   filename: string;
@@ -17,6 +17,7 @@ interface ApiHookResult {
 }
 
 const getFileConfig = (token: string | any): ApiHookResult => {
+  console.log("token2", token);
   const [data, setData] = useState<ApiResponse>({
     filePublished: {},
     fileEdition: {},
@@ -53,9 +54,7 @@ const getFileData = async (
   type: string
 ): Promise<File | null> => {
   try {
-    const response = await AuthService.files(token, {
-      type,
-    });
+    const response = await AuthService.files(token, type);
     if (response.data) {
       return response.data.data;
     }

@@ -15,9 +15,10 @@ class AuthService {
       type: type,
     });
   }
-  static validateToken(token) {
+  static validateToken(token, user) {
     return this.client.post(`/validate-token`, {
       token: token,
+      user: user,
     });
   }
   static register(data) {
@@ -26,6 +27,11 @@ class AuthService {
       email: data.email,
       password: data.password,
       phone: data.phone,
+    });
+  }
+  static updateFileConfig(token, data) {
+    return this.client.post(`/files/update-file-config/${token}`, {
+      data: data,
     });
   }
 }

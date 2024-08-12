@@ -1,13 +1,13 @@
 import {
+  ReactNode,
   createContext,
   useContext,
-  useState,
   useEffect,
-  ReactNode,
+  useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthService from "../services/api";
 import { toast } from "react-toastify";
+import AuthService from "../services/api";
 interface AuthContextData {
   user?: UserProps;
   signIn: (credentials: SignInProps) => Promise<void>;
@@ -47,15 +47,19 @@ export const AuthContext = createContext({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const navigate = useNavigate();
-  const [user, setUser] = useState<UserProps | undefined>();
-  const [token, setToken] = useState<TokenProps>();
+  const [user, setUser] = useState<UserProps>(
+    JSON.parse(localStorage.getItem("user") || "{}")
+  );
+  const [token, setToken] = useState<TokenProps>({ token: "" });
 
   // Login
   async function signIn({ email, password }: SignInProps) {
     try {
       const response = await AuthService.login(email, password);
       console.log("response", response);
-      const { user, token } = (await response.data) || {};
+      const { user, token } = await response;
+      console.log("user", user);
+      console.log("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
       toast.success("Logado com sucesso!");
@@ -111,17 +115,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
   //   }
   // }
 
-  async function validateToken(oldToken: string | null) {
+  async function validateToken() {
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+
+    const oldToken = token;
+    var oldUser = user ? JSON.parse(user) : null;
+
+    if (Array.isArray(oldUser)) {
+      oldUser.map((r) => {
+        return { id: r.id, email: r.email };
+      });
+    } else {
+      console.log("oldUser não é um array");
+    }
+
     try {
       if (!oldToken) {
         throw new Error("Token não encontrado");
       }
       // Faça a chamada para validar o token no servidor
-      const response = await AuthService.validateToken({
-        oldToken,
-      });
+      const response = await AuthService.validateToken(oldToken, oldUser);
       // Se o token ainda for válido, atualize os dados do usuário
-      const { user, token } = response.data;
+      const { user, token } = response;
       setToken(token);
       setUser(user);
     } catch (error: any) {
@@ -142,7 +158,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    validateToken(token);
+    validateToken();
   }, []);
 
   return (

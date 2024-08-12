@@ -1,14 +1,19 @@
 import axios, { AxiosInstance } from "axios";
 
-class HttpService {
+const token = localStorage.getItem("token");
+
+class HttpServiceFluxos {
   private instance: AxiosInstance;
+  private token: string | null;
 
   constructor(baseURL: string) {
+    this.token = localStorage.getItem("token"); // Obter o token do localStorage
+
     this.instance = axios.create({
       baseURL,
       headers: {
         "Content-Type": "application/json",
-        // Outros headers comuns podem ser definidos aqui
+        Authorization: this.token ? `Bearer ${this.token}` : "", // Incluir token se existir
       },
     });
   }
@@ -21,6 +26,7 @@ class HttpService {
       };
 
       if (token) {
+        console.log("token2", token);
         headers.Authorization = `Bearer ${token}`;
       }
 
@@ -48,6 +54,11 @@ class HttpService {
       throw new Error(`Error getting data: ${error.message}`);
     }
   }
+
+  updateToken(newToken: string) {
+    this.token = newToken;
+    this.instance.defaults.headers.Authorization = `Bearer ${this.token}`;
+  }
 }
 
-export default HttpService;
+export default HttpServiceFluxos;
