@@ -26,9 +26,6 @@ module.exports = merge(common, {
         // remoteApp: "remoteApp@http://localhost:6006/remoteEntry.js",
         remoteApp:
           "remoteApp@https://components-educaflex.netlify.app/remoteEntry.js",
-
-        // remoteApp:
-        // "remoteApp@https://661110dda1c26abd06a230ab--dynamic-speculoos-45adf3.netlify.app/remoteEntry.js",
       },
       shared: {
         react: {
