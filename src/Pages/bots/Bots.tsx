@@ -1,13 +1,9 @@
-import { Fragment, Suspense, useEffect, useState } from "react";
-
-import { useAuth } from "../../Contexts/Auth";
+import { Suspense, useEffect, useState } from "react";
 
 import {
   Button,
   CardBetween,
-  Form,
   IconAdd,
-  Row,
   Loading,
   IconEdit,
   IconUsers,
@@ -21,10 +17,8 @@ import botService from "../../services/fluxoServices";
 import { Link } from "react-router-dom";
 
 export function Bot() {
-  const { user }: any = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [bots, setBots] = useState([]);
-  const [qtdBots, setQtdBots] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   async function fetchBots() {

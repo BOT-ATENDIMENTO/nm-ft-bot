@@ -10,20 +10,7 @@ import {
 import { Node, NodeChange, EdgeChange, MarkerType } from "reactflow";
 import getFileConfig from "../../Hooks/getFileConfiguration";
 
-import {
-  Button,
-  CardBetween,
-  Form,
-  IconAdd,
-  Row,
-  Loading,
-  IconEdit,
-  IconUsers,
-  Text,
-  IconSettings,
-  TableContent,
-  ContentBody,
-} from "remoteApp/Components";
+import { Button, IconAdd, Loading, IconEdit } from "remoteApp/Components";
 
 import { FluxoBotComponent } from "../../components/FluxoBotComponent";
 import { MenuFluxoLateral } from "../../components/MenuFLuxoLateral";
@@ -99,7 +86,6 @@ export function FluxoBot() {
   const [edges, setEdges] = useEdgesState([]);
   const [nodes, setNodes] = useNodesState([]);
   const [fileEdition, setFileEdition] = useState<any>(null);
-  const [filePublished, setFilePublished] = useState<any>(null);
   const [openConfigs, setopenConfigs] = useState(false);
   const [idselected, setIdselected] = useState("");
   const [carregando, setCarregando] = useState(true);
